@@ -31,3 +31,16 @@ class User(AbstractBaseUser):
         return f'{self.phone_number}'
 
 
+class OTP(models.Model):
+    code = models.CharField(max_length=6)
+    phone = models.CharField(max_length=11)
+    expired_time = models.DateTimeField()
+
+    def save(self, *args, **kwargs):
+        OTP.objects.filter(phone=self.phone).delete()
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f'{self.code}----{self.phone}'
+
+
