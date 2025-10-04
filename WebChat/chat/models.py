@@ -1,6 +1,6 @@
 from django.db import models
 from accounts.models import User
-
+from rest_framework.exceptions import ValidationError
 
 
 class Conversation(models.Model):
@@ -8,15 +8,24 @@ class Conversation(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"Conversation {self.id}"
+        phones = ',,,,,,'.join([user.phone_number for user in self.participants.all()])
+        return f"Conversation between  {phones}"
 
 
 
 class Message(models.Model):
-    conversation = models.ForeignKey(Canvesation, on_delete=models.CASCADE, related_name='messages')
+    conversation = models.ForeignKey(Conversation, on_delete=models.CASCADE, related_name='messages')
     sender = models.ForeignKey(User, on_delete=models.CASCADE, related_name='sent_messages')
-    text = models.TextField
+    text = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
+
+    def clean(self):
+        if self.sender not in self.conversation.participants.all():
+            raise ValidationError("Sender must be a participant of the conversation.")
+        
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return f"{self.sender} -> {self.conversation.id}: {self.text[:20]}"
