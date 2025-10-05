@@ -1,6 +1,7 @@
 import './App.css'
 import {Route, Routes} from "react-router-dom";
 import AuthApp from "./ pages/register/AuthApp.tsx";
+import Home from "./ pages/home/Home.tsx";
 
 
 function App() {
@@ -10,7 +11,7 @@ function App() {
         <>
             <Routes>
                 <Route path='/' element={<AuthApp />}/>
-
+                <Route path='/home' element={<Home/>} />
             </Routes>
         </>
     )
