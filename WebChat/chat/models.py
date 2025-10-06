@@ -33,7 +33,7 @@ class Message(models.Model):
 
 class UserProfileImages(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='images')
-    image = models.ImageField(upload_to='profile_images/', null=True, blank=True)
+    image = models.ImageField(upload_to='profile_images', null=True, blank=True)
     is_main = models.BooleanField(default=False)
 
     def __str__(self):

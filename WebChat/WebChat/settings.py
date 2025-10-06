@@ -30,6 +30,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'daphne',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -70,9 +71,17 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'WebChat.wsgi.application'
+ASGI_APPLICATION = 'WebChat.asgi.application'
 
-# Database
-# https://docs.djangoproject.com/en/5.2/ref/settings/#databases
+
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [("127.0.0.1", 6379)]
+        }
+    }
+}
 
 DATABASES = {
     'default': {
