@@ -9,6 +9,7 @@ from django.utils import timezone
 class PresenceConsumer(AsyncWebsocketConsumer):
     async def connect(self):
         user = self.scope['user']
+        print('user is ',user)
         if user is None or user.is_anonymous:
             await self.close()
             return
