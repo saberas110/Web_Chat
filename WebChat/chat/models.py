@@ -30,6 +30,11 @@ class Message(models.Model):
     def __str__(self):
         return f"{self.sender} -> {self.conversation.id}: {self.text[:20]}"
 
+class MessageReadStatus(models.Model):
+    message = models.ForeignKey(Message, on_delete=models.CASCADE, related_name='read_messages')
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    read_at = models.DateTimeField(null=True, blank=True)
+
 
 class UserProfileImages(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='images')
