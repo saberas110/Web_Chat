@@ -1,34 +1,12 @@
 import { useState } from "react";
 import { Menu } from "lucide-react";
+import {useChatContext} from "../../context/ChatContext.tsx";
 
-const users = [
-  {
-    id: 1,
-    name: "Ali",
-    lastMessage: "درود، حالت چطوره؟",
-    time: "Sep 24",
-    unread: 2,
-    avatar: "https://i.pravatar.cc/40?img=1",
-  },
-  {
-    id: 2,
-    name: "Sara",
-    lastMessage: "جلسه یادت نره",
-    time: "Sep 22",
-    unread: 0,
-    avatar: "https://i.pravatar.cc/40?img=2",
-  },
-  {
-    id: 3,
-    name: "Reza",
-    lastMessage: "باشه مرسی 🙏",
-    time: "Sep 18",
-    unread: 5,
-    avatar: "https://i.pravatar.cc/40?img=3",
-  },
-];
 
 export default function LeftSide() {
+
+  const {chatList} = useChatContext()
+  console.log('im from leftside', chatList)
   const [selectedUser, setSelectedUser] = useState(null);
 
   return (
@@ -49,7 +27,7 @@ export default function LeftSide() {
 
         {/* لیست کاربران */}
         <div className="flex-1 overflow-y-auto">
-          {users.map((user) => (
+          {chatList?.map((user) => (
             <div
               key={user.id}
               onClick={() => setSelectedUser(user.id)}
@@ -68,7 +46,7 @@ export default function LeftSide() {
                 </div>
                 <div className="flex justify-between items-center">
                   <p className="text-sm text-gray-600 truncate max-w-[160px]">
-                    {user.lastMessage}
+                    {user.last_message}
                   </p>
                   {user.unread > 0 && (
                     <span className="ml-2 bg-green-500 text-white text-xs px-2 py-0.5 rounded-full">
@@ -94,7 +72,7 @@ export default function LeftSide() {
       >
         {selectedUser ? (
           <p className="text-gray-600">
-            در حال چت با {users.find((u) => u.id === selectedUser)?.name}
+            در حال چت با {chatList.find((u) => u.id === selectedUser)?.name}
           </p>
         ) : (
           <p className="text-gray-500">یک مخاطب را انتخاب کنید</p>

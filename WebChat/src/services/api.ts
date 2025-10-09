@@ -1,8 +1,9 @@
 import axios  from 'axios'
+import CSRFInteceptors from "./requestInterceptors.ts";
+import RefreshInterceptors from "./requestInterceptors.ts";
 
 
-const accountHost = 'http://localhost:8000/accounts/'
-
+const Host = 'http://localhost:8000/'
 
 function getCookie(name: string):string | null {
     const value = `;${document.cookie}`
@@ -12,46 +13,21 @@ function getCookie(name: string):string | null {
 }
 
 
-const account = axios.create({
-    baseURL: accountHost,
-    withCredentials: true
+const api = axios.create({
+    baseURL: Host,
+    withCredentials: true,
 })
 
+CSRFInteceptors(api)
+RefreshInterceptors(api)
 
 
-export async function getCSRFToken():Promise<string | null> {
-    try {
-        const response = await account.get('csrf')
-        return response.data?.csrfToken || getCookie('csrftoken')
-    }catch (error){
-         console.error("Error getting CSRF token:", error);
-    return null;
-    }
 
-}
 
-account.interceptors.request.use(async (config) => {
-  // اگر درخواست خودِ csrf هست، کاری نکن
-  if (config.url?.includes("csrf")) {
-    return config;
-  }
-
-  let csrfToken = getCookie("csrftoken");
-
-  if (!csrfToken) {
-    csrfToken = await getCSRFToken();
-  }
-
-  if (csrfToken) {
-    config.headers["X-CSRFToken"] = csrfToken;
-  }
-
-  return config;
-});
 
 export async function apiOtp(phone:string){
   try {
-    const response = await account.post("otp", {
+    const response = await api.post("accounts/otp", {
         'phone':phone
     });
     return response.data;
@@ -63,7 +39,7 @@ export async function apiOtp(phone:string){
 
 export async function apiRegister(otp:string){
     try{
-        const response = await account.post('register', {
+        const response = await api.post('accounts/register', {
             'otp_code':otp
         })
         return response.data
@@ -72,5 +48,21 @@ export async function apiRegister(otp:string){
     throw error;
     }
 }
+
+
+
+
+
+export async function apiChatList(){
+    console.log('start request for chatlist')
+    try {
+        const response =await api.get('chat/cvs')
+        return response.data
+    }catch (error){
+        console.error("Error sending OTP:", error.response || null)
+        throw error
+    }
+}
+
 
 
