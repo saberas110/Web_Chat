@@ -35,7 +35,7 @@ export async function apiOtp(phone:string){
     console.error("Error sending OTP:", error.response || null);
     throw error;
   }
-}
+}g
 
 export async function apiRegister(otp:string){
     try{
@@ -54,7 +54,7 @@ export async function apiRegister(otp:string){
 
 
 export async function apiChatList(){
-    console.log('start request for chatlist')
+
     try {
         const response =await api.get('chat/cvs')
         return response.data
@@ -62,6 +62,35 @@ export async function apiChatList(){
         console.error("Error sending OTP:", error.response || null)
         throw error
     }
+}
+
+export async function apiContacts(){
+
+     try {
+        const response =await api.get('chat/contacts')
+        return response.data
+    }catch (error){
+        console.error("Error sending OTP:", error.response || null)
+        throw error
+    }
+}
+
+export async function apiConversation(id:string){
+    try {
+        const response = await api.post('chat/cv',{id})
+        return response.data
+    }catch (error){
+        console.log('Error apiConversation is:', error.response || null)
+        throw error
+    }
+}
+
+export async function apiUser(){
+
+        const response = await api.get('account/get/user')
+        return response.data
+
+
 }
 
 

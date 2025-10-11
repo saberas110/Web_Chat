@@ -1,11 +1,12 @@
 import React, {createContext, useContext, useEffect, useState} from "react";
-import {apiChatList} from "../services/api.ts";
+import {apiChatList, apiContacts, apiConversation} from "../services/api.ts";
+import {useAuthContext} from "./AuthContext.tsx";
 
-interface IchatProviderProps{
-    children : React.ReactNode
+interface IchatProviderProps {
+    children: React.ReactNode
 }
 
-interface IChatList{
+interface IChatList {
     id: number,
     name: string,
     lastMessage: string
@@ -15,43 +16,57 @@ interface IChatList{
 
 }
 
-
-interface IChatContex{
-    chatList: IChatList
+interface IContacts {
+    id: number,
+    contact_user: string,
+    nickname: string,
+    last_seen: string,
+    is_online: boolean,
+    avatar: string
 }
 
 
-
+interface IChatContex {
+    chatList: IChatList[],
+    contacts: IContacts[],
+    getConversationId: (id:string)=>Promise<string>
+}
 
 
 const chatContext = createContext({} as IChatContex)
 
-export const useChatContext = ()=>useContext(chatContext)
+export const useChatContext = () => useContext(chatContext)
 
 
-
-export default function ChatProvider({children}:IchatProviderProps){
-
-    const [chatList, setChatList] = useState()
-
+export default function ChatProvider({children}: IchatProviderProps) {
+    const {user, lodding} = useAuthContext()
+    const [chatList, setChatList] = useState<IChatList[]>([])
+    const [messages, setMessages] = useState()
+    const [contacts, setContacts] = useState<IContacts[]>([])
+    const [conversationId, setConversationId] = useState<string | null>(null)
 
 
     useEffect(() => {
-        console.log('start api')
-        apiChatList().then(res=>{
-            setChatList(res)
-        })
-    }, []);
+        if (!lodding){
+            apiChatList().then(setChatList)
+            apiContacts().then(setContacts)
+        }
+    }, [lodding]);
 
 
-
-
-
-    return(
-        <chatContext.Provider value={{chatList, }}>
-
-            {children}
-
-        </chatContext.Provider>
-    )
+async function getConversationId(id:string){
+    await apiConversation(id).then(res=>{
+        setConversationId(res)
+    })
+    return res
 }
+
+
+        return (
+            <chatContext.Provider value={{chatList, contacts, getConversationId}}>
+
+                {children}
+
+            </chatContext.Provider>
+        )
+    }

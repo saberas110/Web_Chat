@@ -14,11 +14,15 @@ export default function usePresence(){
             console.log('presence ev: ', data)
         }
 
+        ws.onclose = (event)=>{
+            console.log('socket closed:', event.code, event.reason)
+        }
+
+
+
         return ()=> {
             ws.onclose = (ev)=>{
                 ws.close()
-            //    const data = JSON.parse(ev.data)
-            // console.log('presence ev: ', data)
             }
         }
 

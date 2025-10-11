@@ -1,18 +1,29 @@
 import { useState } from "react";
-import { Menu } from "lucide-react";
-import {useChatContext} from "../../context/ChatContext.tsx";
-
+import { Menu, Edit3 } from "lucide-react";
+import { useChatContext } from "../../context/ChatContext.tsx";
+import ContactsPanel from "../contactspanel/ContactsPanel.tsx";
+import ChatArea from "../chatArea/ChatArea.tsx";
 
 export default function LeftSide() {
-
-  const {chatList} = useChatContext()
-  console.log('im from leftside', chatList)
+  const { chatList } = useChatContext();
   const [selectedUser, setSelectedUser] = useState(null);
+  const [isContactsOpen, setIsContactsOpen] = useState(false);
+  const [activeChat, setActiveChat] = useState(null);
+
+  const handleUserSelect = (chat) => {
+    setSelectedUser(chat.id);
+    setActiveChat(chat);
+  };
+
+  const handleContactSelect = (contact) => {
+    setActiveChat(contact);
+    setIsContactsOpen(false);
+  };
 
   return (
-    <div className="h-screen w-screen flex ">
+    <div className="h-screen w-screen flex">
       {/* سمت چپ */}
-      <div className="w-80 border-r border-gray-300 flex flex-col bg-white">
+      <div className="w-80 border-r border-gray-300 flex flex-col bg-white relative">
         {/* هدر سرچ */}
         <div className="p-3 flex items-center">
           <button className="mr-2 p-2 hover:bg-gray-200 rounded-full">
@@ -27,30 +38,30 @@ export default function LeftSide() {
 
         {/* لیست کاربران */}
         <div className="flex-1 overflow-y-auto">
-          {chatList?.map((user) => (
+          {chatList?.map((chat) => (
             <div
-              key={user.id}
-              onClick={() => setSelectedUser(user.id)}
+              key={chat.id}
+              onClick={() => handleUserSelect(chat)}
               className={`flex items-center p-3 cursor-pointer border-b border-gray-200
-                ${selectedUser === user.id ? "bg-gray-100" : "hover:bg-gray-50"}`}
+                ${selectedUser === chat.id ? "bg-gray-100" : "hover:bg-gray-50"}`}
             >
               <img
-                src={user.avatar}
-                alt={user.name}
+                src={chat.avatar}
+                alt={chat.name}
                 className="w-12 h-12 rounded-full mr-3"
               />
               <div className="flex-1">
                 <div className="flex justify-between items-center">
-                  <h2 className="font-semibold text-sm">{user.name}</h2>
-                  <span className="text-xs text-gray-500">{user.time}</span>
+                  <h2 className="font-semibold text-sm">{chat.name}</h2>
+                  <span className="text-xs text-gray-500">{chat.time}</span>
                 </div>
                 <div className="flex justify-between items-center">
                   <p className="text-sm text-gray-600 truncate max-w-[160px]">
-                    {user.last_message}
+                    {chat.last_message}
                   </p>
-                  {user.unread > 0 && (
+                  {chat.unread > 0 && (
                     <span className="ml-2 bg-green-500 text-white text-xs px-2 py-0.5 rounded-full">
-                      {user.unread}
+                      {chat.unread}
                     </span>
                   )}
                 </div>
@@ -58,26 +69,28 @@ export default function LeftSide() {
             </div>
           ))}
         </div>
+
+        {/* دکمه آبی برای باز کردن مخاطبین */}
+        <button
+          onClick={() => setIsContactsOpen(true)}
+          className="absolute bottom-4 right-4 w-14 h-14 bg-blue-500 rounded-full flex items-center justify-center text-white shadow-lg hover:bg-blue-600 transition-colors"
+        >
+          <Edit3 size={24} />
+        </button>
       </div>
 
-      {/* سمت راست */}
-      <div
-        className="flex-1 flex items-center justify-center"
-        style={{
-          backgroundImage:
-            "url('https://telegram.org/img/tl_background_pattern.png'), linear-gradient(to top left, #e0fdd7, #a3d9c9)",
-          backgroundBlendMode: "overlay",
-          backgroundSize: "cover",
-        }}
-      >
-        {selectedUser ? (
-          <p className="text-gray-600">
-            در حال چت با {chatList.find((u) => u.id === selectedUser)?.name}
-          </p>
-        ) : (
-          <p className="text-gray-500">یک مخاطب را انتخاب کنید</p>
-        )}
-      </div>
+      {/* پنل مخاطبین */}
+      {isContactsOpen && (
+        <ContactsPanel
+          onClose={() => setIsContactsOpen(false)}
+          onContactSelect={handleContactSelect}
+        />
+      )}
+
+      {activeChat &&(
+          <ChatArea activeChat={activeChat} />
+      )}
+
     </div>
   );
 }
