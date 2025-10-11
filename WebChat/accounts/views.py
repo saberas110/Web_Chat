@@ -3,12 +3,16 @@ from django.utils import timezone
 from random import randint
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import ensure_csrf_cookie
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import status
+from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework_simplejwt.tokens import RefreshToken, AccessToken
+from rest_framework_simplejwt.views import TokenObtainPairView
+
 from .models import OTP, User
-from .serializers import PhoneSerializer, OtpSerializer
+from .serializers import PhoneSerializer, OtpSerializer, UserSerializer
 
 
 class CSRFTokenView(APIView):
@@ -75,6 +79,13 @@ class RegisterView(APIView):
             )
         return response
 
+
+class UserView(APIView):
+    permission_classes = [IsAuthenticated]
+    def get(self, request):
+       user = request.user
+       srz_data =UserSerializer(user)
+       return Response(srz_data.data, status.HTTP_200_OK)
 
 
 

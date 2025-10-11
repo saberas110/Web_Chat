@@ -59,7 +59,7 @@ class Contact(models.Model):
     nickname = models.CharField(max_length=50, blank=True, null=True)
 
     def __str__(self):
-        return f"{self.owner.phone_number} → {self.contact_user.phone_number}"
+        return self.contact_user.phone_number
 
 
 

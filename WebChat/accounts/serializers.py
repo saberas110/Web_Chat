@@ -4,7 +4,7 @@ from django.utils import timezone
 from django.template.context_processors import request
 from rest_framework import serializers
 
-from accounts.models import OTP
+from accounts.models import OTP, User
 
 
 class PhoneSerializer(serializers.Serializer):
@@ -48,3 +48,8 @@ class OtpSerializer(serializers.Serializer):
 
 
 
+class UserSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = User
+        fields = ['phone_number']
