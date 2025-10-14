@@ -1,14 +1,14 @@
-import { useState } from "react";
+import { useState} from "react";
 import { Menu, Edit3 } from "lucide-react";
-import { useChatContext } from "../../context/ChatContext.tsx";
 import ContactsPanel from "../contactspanel/ContactsPanel.tsx";
 import ChatArea from "../chatArea/ChatArea.tsx";
+import useChatList from "../../hooks/chat/useChatList.tsx";
 
 export default function LeftSide() {
-  const { chatList } = useChatContext();
+  const {chatList} = useChatList()
   const [selectedUser, setSelectedUser] = useState(null);
   const [isContactsOpen, setIsContactsOpen] = useState(false);
-  const [activeChat, setActiveChat] = useState(null);
+  const [activeChat, setActiveChat] = useState(null)
 
   const handleUserSelect = (chat) => {
     setSelectedUser(chat.id);
@@ -19,6 +19,7 @@ export default function LeftSide() {
     setActiveChat(contact);
     setIsContactsOpen(false);
   };
+
 
   return (
     <div className="h-screen w-screen flex">
@@ -36,7 +37,6 @@ export default function LeftSide() {
           />
         </div>
 
-        {/* لیست کاربران */}
         <div className="flex-1 overflow-y-auto">
           {chatList?.map((chat) => (
             <div
@@ -70,7 +70,6 @@ export default function LeftSide() {
           ))}
         </div>
 
-        {/* دکمه آبی برای باز کردن مخاطبین */}
         <button
           onClick={() => setIsContactsOpen(true)}
           className="absolute bottom-4 right-4 w-14 h-14 bg-blue-500 rounded-full flex items-center justify-center text-white shadow-lg hover:bg-blue-600 transition-colors"
@@ -79,7 +78,7 @@ export default function LeftSide() {
         </button>
       </div>
 
-      {/* پنل مخاطبین */}
+
       {isContactsOpen && (
         <ContactsPanel
           onClose={() => setIsContactsOpen(false)}

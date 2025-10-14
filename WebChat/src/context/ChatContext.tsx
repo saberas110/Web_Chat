@@ -1,6 +1,6 @@
 import React, {createContext, useContext, useEffect, useState} from "react";
 import {apiChatList, apiContacts, apiConversation} from "../services/api.ts";
-import {useAuthContext} from "./AuthContext.tsx";
+import useGetUser from "../hooks/getUser/useGetUser.tsx";
 
 interface IchatProviderProps {
     children: React.ReactNode
@@ -30,6 +30,7 @@ interface IChatContex {
     chatList: IChatList[],
     contacts: IContacts[],
     getConversationId: (id:string)=>Promise<string>
+
 }
 
 
@@ -39,27 +40,31 @@ export const useChatContext = () => useContext(chatContext)
 
 
 export default function ChatProvider({children}: IchatProviderProps) {
-    const {user, lodding} = useAuthContext()
+    const {lodding, user} = useGetUser()
     const [chatList, setChatList] = useState<IChatList[]>([])
-    const [messages, setMessages] = useState()
     const [contacts, setContacts] = useState<IContacts[]>([])
     const [conversationId, setConversationId] = useState<string | null>(null)
 
 
-    useEffect(() => {
-        if (!lodding){
-            apiChatList().then(setChatList)
-            apiContacts().then(setContacts)
-        }
-    }, [lodding]);
 
 
 async function getConversationId(id:string){
-    await apiConversation(id).then(res=>{
+  const res = await apiConversation(id)
         setConversationId(res)
-    })
     return res
 }
+
+    useEffect(() => {
+        const getContacts = async ()=>{
+            await apiContacts().then(res=>{
+                setContacts(res)
+            })
+        }
+        getContacts()
+    }, []);
+
+
+
 
 
         return (

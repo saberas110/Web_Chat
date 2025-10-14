@@ -1,5 +1,5 @@
-import React, {createContext, useContext, useEffect, useState} from "react";
-import {apiOtp, apiUser} from "../services/api.ts";
+import React, {createContext, useContext, useState} from "react";
+
 
 interface IAuthProviderProps{
     children: React.ReactNode
@@ -10,17 +10,13 @@ interface IUser{
 }
 
 
-interface IAuthContext{
+interface IAuthContext {
     user: IUser | null,
     lodding: boolean,
 
-
-
 }
 
-
-
-export const AuthContext = createContext({} as IAuthContext)
+    const AuthContext = createContext({} as IAuthContext)
 
 export const useAuthContext = ()=>{
     return useContext(AuthContext)
@@ -31,25 +27,6 @@ export default function AuthProvider({children}:IAuthProviderProps) {
 
     const [user, setUser] = useState(null)
     const [lodding, setLodding] = useState(true)
-
-    useEffect(() => {
-        const getUser = async () =>{
-            try{
-                const res = await  apiUser()
-                setUser(res)
-            }catch (error){
-                console.log('get user error is :', error)
-            }finally {
-                setLodding(false)
-            }
-        }
-        getUser()
-    }, []);
-
-
-
-
-
 
 
 

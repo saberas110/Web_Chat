@@ -16,7 +16,6 @@ export default function PhoneLoginPage({ onPhoneSubmit }){
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-500 to-purple-600 p-6">
       <div className="bg-white rounded-2xl shadow-xl p-8 w-full max-w-md">
 
-        {/* لوگوی سفارشی */}
         <div className="flex justify-center mb-6">
           <div className="w-20 h-20 bg-gradient-to-br from-blue-500 to-blue-400 rounded-full flex items-center justify-center shadow-lg">
             <span className="text-white font-bold text-xl">MSG</span>
@@ -28,7 +27,6 @@ export default function PhoneLoginPage({ onPhoneSubmit }){
         </h2>
 
         <form onSubmit={handleSubmit} className="space-y-6">
-          {/* اینپوت شماره تلفن */}
           <div>
             <label className="block text-gray-600 text-sm font-medium mb-2">
               Your phone number
@@ -48,7 +46,6 @@ export default function PhoneLoginPage({ onPhoneSubmit }){
             </div>
           </div>
 
-          {/* چک باکس Keep me signed in */}
           <div className="flex items-center">
             <label className="flex items-center cursor-pointer">
               <input
@@ -72,7 +69,6 @@ export default function PhoneLoginPage({ onPhoneSubmit }){
             </label>
           </div>
 
-          {/* دکمه لاگین */}
           <button
             type="submit"
             className="w-full bg-blue-500 hover:bg-blue-600 text-white py-3 px-4 rounded-lg font-medium transition-colors shadow-md hover:shadow-lg"
@@ -81,7 +77,6 @@ export default function PhoneLoginPage({ onPhoneSubmit }){
           </button>
         </form>
 
-        {/* جداکننده */}
         <div className="relative my-6">
           <div className="absolute inset-0 flex items-center">
             <div className="w-full border-t border-gray-200"></div>
@@ -91,7 +86,6 @@ export default function PhoneLoginPage({ onPhoneSubmit }){
           </div>
         </div>
 
-        {/* لاگین با QR کد */}
         <div className="text-center">
           <button className="text-blue-500 hover:text-blue-600 hover:bg-blue-50 py-2 px-4 rounded-lg font-medium transition-colors">
             LOG IN BY QR CODE

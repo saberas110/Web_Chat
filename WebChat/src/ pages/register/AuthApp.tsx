@@ -2,14 +2,17 @@ import {useState} from "react";
 import PhoneLoginPage from './PhoneLoginPage'
 import OTPLoginPage from './OTPLoginPage'
 import {apiOtp, apiRegister} from "../../services/api.ts";
-import axios from "axios";
 import {useNavigate} from "react-router";
-import Home from "../home/Home.tsx";
+import useChatList from "../../hooks/chat/useChatList.tsx";
+
 
 export default function AuthApp(){
+  const {chatList} = useChatList()
   const [currentPage, setCurrentPage] = useState('phone'); // 'phone' یا 'otp'
   const [userPhone, setUserPhone] = useState('');
   const navigate = useNavigate()
+
+  console.log('chatList', chatList)
 
 
   const handlePhoneSubmit = async (phone) => {
@@ -24,9 +27,12 @@ export default function AuthApp(){
     await apiRegister(otpCode).then(res=>{
       console.log('response is ', res)
       navigate('/home')
-
     })
-  };
+
+    }
+
+
+
 
   const handleBackToPhone = () => {
     setCurrentPage('phone');

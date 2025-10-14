@@ -35,7 +35,7 @@ export async function apiOtp(phone:string){
     console.error("Error sending OTP:", error.response || null);
     throw error;
   }
-}g
+}
 
 export async function apiRegister(otp:string){
     try{
@@ -87,7 +87,7 @@ export async function apiConversation(id:string){
 
 export async function apiUser(){
 
-        const response = await api.get('account/get/user')
+        const response = await api.get('accounts/get/user')
         return response.data
 
 

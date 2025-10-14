@@ -1,10 +1,12 @@
 import { X, Search } from "lucide-react";
 import {useChatContext} from "../../context/ChatContext.tsx";
 
+
 function ContactsPanel ({ onClose, onContactSelect })  {
 
   const {contacts} = useChatContext()
-    console.log('contact is', contacts)
+
+
 
   return (
     <div className="w-80 border-r border-gray-300 flex flex-col bg-white">
@@ -19,7 +21,7 @@ function ContactsPanel ({ onClose, onContactSelect })  {
         <h2 className="flex-1 text-lg font-semibold text-center">Contacts</h2>
       </div>
 
-      {/* فیلد جستجو */}
+
       <div className="p-3">
         <div className="relative">
           <Search size={18} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
@@ -31,9 +33,9 @@ function ContactsPanel ({ onClose, onContactSelect })  {
         </div>
       </div>
 
-      {/* لیست مخاطبین */}
+
       <div className="flex-1 overflow-y-auto">
-        {contacts.map((contact) => (
+        {contacts?.map((contact) => (
           <div
             key={contact.id}
             onClick={() => onContactSelect(contact)}
@@ -45,14 +47,14 @@ function ContactsPanel ({ onClose, onContactSelect })  {
               className="w-12 h-12 rounded-full mr-3"
             />
             <div className="flex-1">
-              <h3 className="font-semibold text-sm">{contact.nickname}</h3>
+              <h3 className="font-semibold text-sm">{contact.name}</h3>
               <p className="text-xs text-gray-500">{contact.last_Seen}</p>
             </div>
           </div>
         ))}
       </div>
 
-      {/* دکمه اضافه کردن مخاطب */}
+
       <div className="p-4 border-t border-gray-300">
         <button className="w-full py-2 bg-gray-100 hover:bg-gray-200 rounded-lg text-sm font-medium transition-colors">
           Add Contact

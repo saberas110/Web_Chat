@@ -48,7 +48,6 @@ export default function OTPLoginPage({ phoneNumber, onBack, onVerify }){
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-500 to-purple-600 p-6">
       <div className="bg-white rounded-2xl shadow-xl p-8 w-full max-w-md">
 
-        {/* دکمه بازگشت */}
         <button
           onClick={onBack}
           className="flex items-center text-gray-500 hover:text-gray-700 mb-4 transition-colors"
@@ -59,7 +58,6 @@ export default function OTPLoginPage({ phoneNumber, onBack, onVerify }){
           Back
         </button>
 
-        {/* لوگوی سفارشی */}
         <div className="flex justify-center mb-6">
           <div className="w-20 h-20 bg-gradient-to-br from-green-500 to-green-400 rounded-full flex items-center justify-center shadow-lg">
             <span className="text-white font-bold text-xl">SEC</span>
@@ -83,7 +81,6 @@ export default function OTPLoginPage({ phoneNumber, onBack, onVerify }){
         </p>
 
         <form onSubmit={handleSubmit} className="space-y-6">
-          {/* اینپوت‌های OTP */}
           <div className="flex justify-center space-x-3">
             {otp.map((digit, index) => (
               <input
@@ -102,7 +99,6 @@ export default function OTPLoginPage({ phoneNumber, onBack, onVerify }){
             ))}
           </div>
 
-          {/* دکمه تأیید */}
           <button
             type="submit"
             disabled={!isOtpComplete}
@@ -116,7 +112,6 @@ export default function OTPLoginPage({ phoneNumber, onBack, onVerify }){
           </button>
         </form>
 
-        {/* لینک‌های کمکی */}
         <div className="mt-6 space-y-3 text-center">
           <button className="text-blue-500 hover:text-blue-600 text-sm font-medium transition-colors block w-full">
             Didn't receive the code?
@@ -127,7 +122,7 @@ export default function OTPLoginPage({ phoneNumber, onBack, onVerify }){
           </button>
         </div>
 
-        {/* تایمر */}
+
         <div className="mt-6 text-center">
           <p className="text-gray-500 text-sm">
             Code expires in: <span className="font-mono text-orange-500">04:59</span>

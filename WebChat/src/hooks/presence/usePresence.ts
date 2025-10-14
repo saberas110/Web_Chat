@@ -1,5 +1,4 @@
 import {useEffect} from "react";
-import {data} from "react-router";
 
 const WS_URL:string = 'ws://localhost:8000/ws/presence/'
 
