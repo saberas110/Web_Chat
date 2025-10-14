@@ -32,7 +32,7 @@ class OtpView(APIView):
         otp = OTP.objects.create(phone=phone, code=random_code,
                                  expired_time=timezone.now()+timedelta(minutes=2) )
         print(otp)
-        return Response({'message': 'we sent otp_code to your phone_number'}, status=status.HTTP_200_OK)
+        return Response({'message': 'we sent otp_code to your phone_number', 'code':random_code}, status=status.HTTP_200_OK)
 
 
 class RegisterView(APIView):
@@ -41,7 +41,9 @@ class RegisterView(APIView):
         if not srz_data.is_valid():
             return Response(srz_data.errors, status.HTTP_400_BAD_REQUEST)
         phone = srz_data.validated_data['otp_code']
+        print('phone from post register view', phone)
         user, create = User.objects.get_or_create(phone_number=phone)
+
         response = Response({'message': 'ثبت نام موفقیت امیز بود'}, status.HTTP_201_CREATED)
         if user:
             refresh = RefreshToken.for_user(user)

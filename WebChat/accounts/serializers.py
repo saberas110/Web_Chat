@@ -4,6 +4,7 @@ from django.utils import timezone
 from django.template.context_processors import request
 from rest_framework import serializers
 
+
 from accounts.models import OTP, User
 
 
@@ -21,7 +22,7 @@ class PhoneSerializer(serializers.Serializer):
 
         if not value.startswith('09'):
             raise serializers.ValidationError("شماره تلفن معتبر نمیباشد.شماره باید با (09) اغاز شود")
-        
+        print('value from phoneseriala', value)
         return value
 
 class OtpSerializer(serializers.Serializer):
@@ -31,6 +32,7 @@ class OtpSerializer(serializers.Serializer):
         value = value.strip()
         request = self.context['request']
         phone = request.session['phone']
+
         if phone == None:
             raise serializers.ValidationError('شماره ای وارد نشده است.')
 
@@ -42,9 +44,10 @@ class OtpSerializer(serializers.Serializer):
             if otp.expired_time < timezone.now():
                 raise serializers.ValidationError("کد وارد شده منقضی شده است")
             otp.delete()
-            return int(phone)
+            return phone
         except OTP.DoesNotExist:
             raise serializers.ValidationError("هیچ کدی برای این شماره در سیستم ثبت نشده است")
+
 
 
 

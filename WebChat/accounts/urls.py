@@ -8,5 +8,5 @@ urlpatterns = [
     path('csrf', views.CSRFTokenView.as_view()),
     path('otp', views.OtpView.as_view()),
     path('register', views.RegisterView.as_view()),
-    path('user', UserView.as_view()),
+    path('get/user', UserView.as_view()),
 ]

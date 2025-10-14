@@ -1,11 +1,11 @@
-from datetime import datetime
+from pathlib import Path
 
+from django.conf import settings
 from django.db.models import Q
-from django.template.context_processors import request
 from django.utils import timezone
 from rest_framework import serializers
-
-from chat.models import Conversation, Message, Contact, UserProfile
+from WebChat.settings import BASE_DIR
+from chat.models import Conversation, Message, Contact
 
 
 class MessageSerializer(serializers.ModelSerializer):
@@ -18,8 +18,6 @@ class MessageSerializer(serializers.ModelSerializer):
 
     def get_isMe(self, obj):
         user = self.context.get('user')
-        print('user is ',user)
-        print('im from meSeri user is: ', obj.sender.id)
         if obj.sender == user:
             return True
         return False
@@ -35,12 +33,14 @@ class ConversationSerializer(serializers.ModelSerializer):
     last_message = serializers.SerializerMethodField()
     name = serializers.SerializerMethodField()
     unread = serializers.SerializerMethodField()
+    last_seen = serializers.SerializerMethodField()
+    is_online = serializers.SerializerMethodField()
     avatar = serializers.SerializerMethodField()
     contact_user = serializers.SerializerMethodField()
 
     class Meta:
         model = Conversation
-        fields = ['id', 'name', 'last_message', 'unread', 'avatar', 'contact_user']
+        fields = ['id', 'name', 'last_message', 'unread', 'avatar', 'contact_user', 'is_online', 'last_seen']
 
     def _get_users(self, obj):
         request = self.context.get('request')
@@ -59,7 +59,7 @@ class ConversationSerializer(serializers.ModelSerializer):
         user, other_user = self._get_users(obj)
         try:
             other_user_contact = Contact.objects.get(contact_user=other_user)
-            return other_user_contact.nickname
+            return other_user_contact.name
         except Contact.DoesNotExist:
             return other_user.phone_number if other_user else None
 
@@ -67,11 +67,10 @@ class ConversationSerializer(serializers.ModelSerializer):
         request = self.context.get('request')
         user, other_user = self._get_users(obj)
         avatar = other_user.images.filter(is_main=True).first()
-
-        if avatar and avatar.image :
+        if avatar and avatar.image:
             main_avatar = getattr(avatar, 'image', None)
             return request.build_absolute_uri(main_avatar.url)
-        return None
+        return request.build_absolute_uri(f'{settings.MEDIA_URL}/profile_images/avatar/default-avatar.jpg')
 
     def get_unread(self, obj):
         user, _ = self._get_users(obj)
@@ -81,9 +80,22 @@ class ConversationSerializer(serializers.ModelSerializer):
         return unread_count
 
     def get_contact_user(self, obj):
-        print('im from get contact_user', obj)
         _, other_user = self._get_users(obj)
-        return other_user.id
+        if other_user:
+            return other_user.id
+        return None
+
+    def get_is_online(self, obj):
+        _, other_user = self._get_users(obj)
+        return other_user.userprofile.is_online if other_user else None
+
+    def get_last_seen(self, obj):
+        _, other_user = self._get_users(obj)
+        if other_user and not self.get_is_online(obj):
+            return other_user.userprofile.last_seen
+        return None
+
+
 
 
 
@@ -96,7 +108,7 @@ class ContactsSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Contact
-        fields = ['id', 'nickname', 'contact_user', 'avatar', 'last_seen', 'is_online']
+        fields = ['id', 'name', 'contact_user', 'avatar', 'last_seen', 'is_online']
 
     def _get_user(self,obj):
         request = self.context.get('request')
@@ -109,7 +121,7 @@ class ContactsSerializer(serializers.ModelSerializer):
         if avatar and avatar.image:
             main_avatar = getattr(avatar, 'image', None)
             return request.build_absolute_uri(main_avatar.url)
-        return None
+        return request.build_absolute_uri(f'{settings.MEDIA_URL}/profile_images/avatar/default-avatar.jpg')
 
 
     def get_last_seen(self, obj):
@@ -123,3 +135,5 @@ class ContactsSerializer(serializers.ModelSerializer):
         if user_profile and user_profile.is_online:
             return user_profile.is_online
         return None
+
+

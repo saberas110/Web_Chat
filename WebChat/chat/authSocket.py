@@ -14,7 +14,6 @@ from accounts.models import User
 
 def _get_token_from_scope(scope, cookie_name='access'):
     headers = dict(scope.get('headers', []))
-    print('scop[headers]', headers)
     cookie_header = headers.get(b"cookie", b"").decode()
     if cookie_header:
         for pair in cookie_header.split("; "):
