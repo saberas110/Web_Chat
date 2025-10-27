@@ -11,6 +11,7 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework_simplejwt.tokens import RefreshToken, AccessToken
 from rest_framework_simplejwt.views import TokenObtainPairView
 
+from chat.models import UserProfile
 from .models import OTP, User
 from .serializers import PhoneSerializer, OtpSerializer, UserSerializer
 
@@ -63,6 +64,7 @@ class RegisterView(APIView):
                 samesite='lax',
             )
         if create:
+            user = create
             refresh = RefreshToken.for_user(user)
             access = refresh.access_token
             response.set_cookie(
@@ -79,6 +81,7 @@ class RegisterView(APIView):
                 secure='lax',
                 samesite='lax',
             )
+
         return response
 
 

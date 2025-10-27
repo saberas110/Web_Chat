@@ -1,43 +1,34 @@
-from django.db.models import Count
+from pyexpat.errors import messages
+
+from asgiref.sync import async_to_sync
+from django.db import transaction
+from django.db.models import Count, Q, Max
 from redis.commands.search.reducers import count
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
-
-
-from chat.models import Conversation, Contact
+from channels.layers import get_channel_layer
+from accounts.models import User
+from chat.models import Conversation, Contact, Message
 from chat.serializers import ConversationSerializer, ContactsSerializer
 
 
 class ConversationListView(APIView):
     permission_classes = [IsAuthenticated]
     def get(self, request):
+
         user = request.user
-        conversation = Conversation.objects.filter(participants=user)
-        print(conversation)
-        if not conversation.exists():
+        conversations = (
+            Conversation.objects
+            .filter(participants=user, messages__isnull=False)
+            .annotate(last_message_time=Max('messages__created_at'))
+            .order_by('-last_message_time')
+            .distinct())
+        if not conversations.exists():
             return  Response({'message':'empty user conversation'}, status.HTTP_404_NOT_FOUND)
-        srz_data = ConversationSerializer(conversation, many=True, context={'request':request})
+        srz_data = ConversationSerializer(conversations, many=True, context={'user':user})
         return Response(srz_data.data, status=status.HTTP_200_OK)
-
-
-
-class ConversationView(APIView):
-    permission_classes = [IsAuthenticated]
-    def post(self, request):
-        user = request.user
-        other_user_id = request.data.get('id')
-        conversation = Conversation.objects.filter(participants__in=[user.id, other_user_id]).distinct()
-        if not conversation:
-            conversation = Conversation()
-            conversation.save()
-            conversation.participants.add(user.id, other_user_id)
-
-            print("✅ Conversation created:", conversation.id)
-        else:
-            print("🔁 Existing conversation found:", conversation.id)
-        return Response({'conversationId': conversation.id}, status.HTTP_200_OK)
 
 
 

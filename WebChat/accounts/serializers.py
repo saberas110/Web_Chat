@@ -9,7 +9,7 @@ from accounts.models import OTP, User
 
 
 class PhoneSerializer(serializers.Serializer):
-    phone = serializers.CharField(max_length=11)
+    phone = serializers.CharField(max_length=10)
 
     def validate_phone(self, value):
         value = value.strip()
@@ -17,13 +17,13 @@ class PhoneSerializer(serializers.Serializer):
         if not re.match(r"^\d+$", value):
             raise serializers.ValidationError("شماره تلفن باید فقط شامل ارقام باشد.")
 
-        if len(value) != 11:
+        if len(value) != 10:
             raise serializers.ValidationError("شماره تلفن باید دقیقا ۱۱ رقم باشد.")
 
-        if not value.startswith('09'):
-            raise serializers.ValidationError("شماره تلفن معتبر نمیباشد.شماره باید با (09) اغاز شود")
+        if not value.startswith('9'):
+            raise serializers.ValidationError("شماره تلفن معتبر نمیباشد.شماره باید با (9) اغاز شود")
         print('value from phoneseriala', value)
-        return value
+        return f'0{value}'
 
 class OtpSerializer(serializers.Serializer):
     otp_code = serializers.CharField(max_length=6)
