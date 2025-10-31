@@ -5,7 +5,7 @@ import {apiUser} from "../../services/api.ts";
 export default function useGetUser(){
 
     const [user, setUser] = useState(null)
-    const [lodding, setLodding] = useState(true)
+    const [loading, setLoading] = useState(true)
 
 
 
@@ -19,7 +19,7 @@ export default function useGetUser(){
             }catch (error){
                 console.log('get user error is :', error)
             }finally {
-                setLodding(false)
+                setLoading(false)
             }
         }
         getUser()
@@ -27,5 +27,5 @@ export default function useGetUser(){
 
 
 
-    return {lodding, user}
+    return {loading, user}
 }

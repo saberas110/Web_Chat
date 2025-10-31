@@ -1,11 +1,10 @@
-import LeftSide from "../../components/leftSideHome/LeftSide.tsx";
-import usePresence from "../../hooks/presence/usePresence.ts";
 import useGetUser from "../../hooks/getUser/useGetUser.tsx";
+import {Navigate, Outlet} from "react-router";
 
 
-export default function Home(){
-const {loading, user} = useGetUser()
-usePresence()
+export default function IsAuthenticated(){
+
+    const {user, loading} = useGetUser()
 
 
      if (loading) {
@@ -18,10 +17,11 @@ usePresence()
          }
 
 
-    return(
-        <>
-                <LeftSide />
+    if (user){
+       return <Navigate to='/home' replace />
+    }
 
-        </>
-    )
+
+    return <Outlet/>
+
 }

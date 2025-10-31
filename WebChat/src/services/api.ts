@@ -93,5 +93,15 @@ export async function apiUser(){
 
 }
 
+export async function apiAddContact(name:string, phone_number:string){
+
+
+        const response = await api.post('chat/addcontact', {
+            'name': name,
+            'phone_number': phone_number
+        })
+        return response.data
+}
+
 
 

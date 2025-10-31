@@ -18,7 +18,7 @@ export default function PhoneLoginPage({ onPhoneSubmit }){
 
         <div className="flex justify-center mb-6">
           <div className="w-20 h-20 bg-gradient-to-br from-blue-500 to-blue-400 rounded-full flex items-center justify-center shadow-lg">
-            <span className="text-white font-bold text-xl">MSG</span>
+            <span className="text-white font-bold text-xl">S@S</span>
           </div>
         </div>
 

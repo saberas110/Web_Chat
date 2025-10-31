@@ -2,21 +2,26 @@ import { useState} from "react";
 import { Menu, Edit3 } from "lucide-react";
 import ContactsPanel from "../contactspanel/ContactsPanel.tsx";
 import ChatArea from "../chatArea/ChatArea.tsx";
-import useChatList from "../../hooks/chat/useChatList.tsx";
+import {useChatContext} from "../../context/ChatContext.tsx";
 
 export default function LeftSide() {
-  const {chatList} = useChatList()
+  const {chatList, activeChat, setActiveChat} = useChatContext()
   const [selectedUser, setSelectedUser] = useState(null);
   const [isContactsOpen, setIsContactsOpen] = useState(false);
-  const [activeChat, setActiveChat] = useState(null)
+
+  console.log('chat list is;', chatList)
+
 
   const handleUserSelect = (chat) => {
-    setSelectedUser(chat.id);
+    console.log('im from handle chat select contact is:', chat)
+    setSelectedUser(chat.contact_user);
     setActiveChat(chat);
   };
 
   const handleContactSelect = (contact) => {
+    console.log('im from handle contact select contact is:', contact)
     setActiveChat(contact);
+    setSelectedUser(contact.contact_user);
     setIsContactsOpen(false);
   };
 
@@ -38,12 +43,14 @@ export default function LeftSide() {
         </div>
 
         <div className="flex-1 overflow-y-auto">
-          {chatList?.map((chat) => (
+          {chatList && (
+              chatList?.map((chat) => (
+
             <div
               key={chat.id}
               onClick={() => handleUserSelect(chat)}
               className={`flex items-center p-3 cursor-pointer border-b border-gray-200
-                ${selectedUser === chat.id ? "bg-gray-100" : "hover:bg-gray-50"}`}
+                ${selectedUser === chat.contact_user ? "bg-gray-100" : "hover:bg-gray-50"}`}
             >
               <img
                 src={chat.avatar}
@@ -67,7 +74,8 @@ export default function LeftSide() {
                 </div>
               </div>
             </div>
-          ))}
+          ))
+          )}
         </div>
 
         <button

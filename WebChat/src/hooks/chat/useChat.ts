@@ -1,36 +1,57 @@
 import {useEffect, useRef, useState} from "react";
 
 
-export default function useChat(conversationId) {
+export default function useChat(conversationId: null, otherUserId: null) {
+
+
     const wsRef = useRef<WebSocket | null>(null);
 
     const [messages, setMessages] = useState()
 
-    console.log('im from usechat', conversationId)
 
     useEffect(() => {
 
-        if (!conversationId) return;
+        if (!conversationId && !otherUserId) return;
 
-         const WS_URL = `ws://localhost:8000/ws/chat/${conversationId}/`
+        let WS_URL = ''
+
+        if (conversationId) {
+
+            WS_URL = `ws://localhost:8000/ws/chat/${conversationId}/`
+        } else {
+            WS_URL = `ws://localhost:8000/ws/chat/user/${otherUserId}/`
+        }
+
 
         const ws = new WebSocket(WS_URL)
+
         wsRef.current = ws
 
-        ws.onopen = () => console.log('open ws chat for :', conversationId)
+        ws.onopen = () => {
+
+            const msg_data = {
+                type: 'read_messages',
+            }
+            ws.send(JSON.stringify(msg_data))
+
+        }
 
         ws.onmessage = (event) => {
-
 
 
             try {
                 const data = JSON.parse(event.data)
 
-                if (data.type==='init_message'){
-                       setMessages(data.messages)
-                }else if (data.type==='new_message'){
-                    console.log('new_message', data)
+                if (data.type === 'init_message') {
+                    setMessages(data.messages)
+                } else if (data.type === 'new_message') {
+
                     setMessages(prevState => [...prevState, data.message])
+                    const msg_data = {
+                        type: 'read_messages',
+                    }
+                    ws.send(JSON.stringify(msg_data))
+
                 }
 
             } catch (err) {
@@ -52,26 +73,24 @@ export default function useChat(conversationId) {
         }
 
 
+    }, [conversationId, otherUserId]);
 
-    }, [conversationId]);
-
-    const sendMessage = (text:string)=>{
+    const sendMessage = (text: string) => {
         const ws = wsRef.current
-        if(!ws){
+        if (!ws) {
             console.warn('WebSocket not connected yet!')
             return
         }
-        if (ws.readyState === WebSocket.OPEN){
+        if (ws.readyState === WebSocket.OPEN) {
             const messageData = {
                 type: "chat_message",
                 messages: text
             }
             ws.send(JSON.stringify(messageData))
-            console.log("Message Sent:", messageData)
-        }else {
+        } else {
             console.warn("WebSocket is not open:", ws.readyState)
         }
     }
 
-return {messages, sendMessage}
+    return {messages, sendMessage}
 }

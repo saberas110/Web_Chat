@@ -4,6 +4,7 @@ import AuthApp from "./ pages/register/AuthApp.tsx";
 import Home from "./ pages/home/Home.tsx";
 import ChatProvider from "./context/ChatContext.tsx";
 import AuthProvider from "./context/AuthContext.tsx";
+import IsAuthenticated from "./components/isAuthenticated/IsAuthenticated.tsx";
 
 
 function App() {
@@ -12,14 +13,20 @@ function App() {
     return (
         <>
 
-         <AuthProvider>
+            <AuthProvider>
                 <ChatProvider>
-                <Routes>
-                    <Route path='/' element={<AuthApp/>}/>
-                    <Route path='/home' element={<Home/>}/>
-                </Routes>
-            </ChatProvider>
-         </AuthProvider>
+                    <Routes>
+                        <Route path='/home' element={<Home/>}/>
+
+                        <Route element={<IsAuthenticated/>}>
+                            <Route path='/' element={<AuthApp/>}/>
+
+                        </Route>
+
+
+                    </Routes>
+                </ChatProvider>
+            </AuthProvider>
 
 
         </>

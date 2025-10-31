@@ -28,6 +28,7 @@ interface IContacts {
 
 interface IChatContex {
     chatList: IChatList[],
+    // setChatList: IChatList[],
     contacts: IContacts[],
     getConversationId: (id:string)=>Promise<string>
 
@@ -43,6 +44,7 @@ export default function ChatProvider({children}: IchatProviderProps) {
     const {lodding, user} = useGetUser()
     const [chatList, setChatList] = useState<IChatList[]>([])
     const [contacts, setContacts] = useState<IContacts[]>([])
+    const [activeChat, setActiveChat] = useState(null)
     const [conversationId, setConversationId] = useState<string | null>(null)
 
 
@@ -67,8 +69,10 @@ async function getConversationId(id:string){
 
 
 
+
+
         return (
-            <chatContext.Provider value={{chatList, contacts, getConversationId}}>
+            <chatContext.Provider value={{chatList, setChatList, contacts, setContacts, getConversationId, activeChat, setActiveChat}}>
 
                 {children}
 

@@ -3,16 +3,13 @@ import PhoneLoginPage from './PhoneLoginPage'
 import OTPLoginPage from './OTPLoginPage'
 import {apiOtp, apiRegister} from "../../services/api.ts";
 import {useNavigate} from "react-router";
-import useChatList from "../../hooks/chat/useChatList.tsx";
 
 
 export default function AuthApp(){
-  const {chatList} = useChatList()
   const [currentPage, setCurrentPage] = useState('phone'); // 'phone' یا 'otp'
   const [userPhone, setUserPhone] = useState('');
   const navigate = useNavigate()
 
-  console.log('chatList', chatList)
 
 
   const handlePhoneSubmit = async (phone) => {
