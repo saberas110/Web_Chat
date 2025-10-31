@@ -5,7 +5,7 @@ from django.contrib.auth.models import AnonymousUser
 from rest_framework.exceptions import ErrorDetail
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework import status
-from rest_framework_simplejwt.exceptions import ExpiredTokenError, TokenError, InvalidToken
+from rest_framework_simplejwt.exceptions import ExpiredTokenError, TokenError, InvalidToken, AuthenticationFailed
 from rest_framework_simplejwt.tokens import AccessToken, RefreshToken
 from django.http import JsonResponse
 
@@ -31,6 +31,8 @@ class RefreshJWTMiddleware:
     def __call__(self, request):
         access = request.COOKIES.get('access')
         refresh = request.COOKIES.get('refresh')
+
+        print('access', access)
         user = AnonymousUser()
         new_access = None
         if access:
@@ -50,6 +52,11 @@ class RefreshJWTMiddleware:
                     except TokenError:
                         pass
 
+            except AuthenticationFailed:
+                user = AnonymousUser()
+                access = None
+
+
             except (TokenError, InvalidToken):
                 pass
 
@@ -64,5 +71,10 @@ class RefreshJWTMiddleware:
                 secure=False,
                 samesite='lax'
             )
+        print('user in middlware is ', user)
+
+        # if isinstance(user, AnonymousUser):
+        #     response.delete_cookie('access')
+        #     response.delete_cookie('refresh')
 
         return response

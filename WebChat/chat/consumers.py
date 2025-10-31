@@ -8,43 +8,51 @@ from chat.serializers import MessageSerializer, ConversationSerializer
 
 class PresenceConsumer(AsyncWebsocketConsumer):
     async def connect(self):
-        user = self.scope['user']
-        if user is None or user.is_anonymous:
+        self.user = self.scope['user']
+        if self.user is None or self.user.is_anonymous:
             await self.close()
             return
 
         self.group_name = 'presence'
-        self.user_group_name = f"user_{user.id}"
+        self.user_group_name = f"user_{self.user.id}"
 
         await self.channel_layer.group_add(self.group_name, self.channel_name)
         await self.channel_layer.group_add(self.user_group_name, self.channel_name)
         await self.accept()
 
-        await self.set_online(user, True)
+        await self.set_online(self.user, True)
+
+        srz_conversations = await self.get_conversations(self.user)
 
 
         await self.channel_layer.group_send(
             self.group_name,
             {
                 "type": "presence.update",
-                "user_id": user.id,
-                "username": getattr(user, "username", None),
+                "user_id": self.user.id,
+                "username": getattr(self.user, "username", None),
                 "status": "online",
+            }
+        )
+        await self.channel_layer.group_send(
+            self.user_group_name,
+            {
+                "type": "chat.list",
+                "conversations": srz_conversations
             }
         )
 
     async def disconnect(self, code):
-        user = self.scope.get('user')
-        if user is None or user.is_anonymous:
+        if self.user is None or self.user.is_anonymous:
             return
 
-        await self.set_last_seen(user)
-        await self.set_online(user, False)
+        await self.set_last_seen(self.user)
+        await self.set_online(self.user, False)
         await self.channel_layer.group_send(
             self.group_name, {
                 "type": "presence.update",
-                "user_id": user.id,
-                "username": getattr(user, 'username', None),
+                "user_id": self.user.id,
+                "username": getattr(self.user, 'username', None),
                 "status": "offline",
             }
         )
@@ -71,6 +79,14 @@ class PresenceConsumer(AsyncWebsocketConsumer):
         await self.send(text_data=json.dumps(event))
 
 
+    async def chat_list(self, event):
+        await self.send(text_data=json.dumps({
+            "type": 'chat_list',
+            'conversations': event['conversations']
+        }))
+
+
+
 
     @database_sync_to_async
     def set_online(self, user, val: bool):
@@ -85,6 +101,24 @@ class PresenceConsumer(AsyncWebsocketConsumer):
         if profile:
             profile.last_seen = timezone.now()
             profile.save(update_fields=["last_seen", "is_online"])
+
+    @database_sync_to_async
+    def get_conversations(self, user):
+        from django.db.models import Max
+
+
+        cvs = (
+            Conversation.objects
+            .filter(participants=user, messages__isnull=False)
+            .annotate(last_message_time=Max('messages__created_at'))
+            .order_by('-last_message_time')
+            .distinct())
+        if cvs.exists():
+            print('srz get convs:,', user)
+            srz_cvs = ConversationSerializer(cvs, many=True, context={'user': user})
+
+            return srz_cvs.data
+        return None
 
 
 

@@ -1,7 +1,13 @@
+import re
+
 from django.conf import settings
 from django.db.models import Q
 from django.utils import timezone
 from rest_framework import serializers
+from rest_framework.exceptions import ValidationError
+
+from accounts.models import User
+from chat.exceptions import UserNotFoundError
 from chat.models import Conversation, Message, Contact
 
 
@@ -54,7 +60,7 @@ class ConversationSerializer(serializers.ModelSerializer):
     def get_name(self, obj):
         user, other_user = self._get_users(obj)
         try:
-            other_user_contact = Contact.objects.get(contact_user=other_user)
+            other_user_contact = Contact.objects.get(owner=user, contact_user=other_user)
             return other_user_contact.name
         except Contact.DoesNotExist:
             return other_user.phone_number if other_user else None
@@ -138,5 +144,90 @@ class ContactsSerializer(serializers.ModelSerializer):
         if user_profile and user_profile.is_online:
             return user_profile.is_online
         return None
+
+
+
+class AddContactSerializer(serializers.ModelSerializer):
+    name = serializers.CharField(max_length=50)
+    phone_number = serializers.CharField(max_length=11, write_only=True)
+    contact_user = serializers.PrimaryKeyRelatedField(read_only=True)
+    avatar = serializers.SerializerMethodField()
+    last_seen = serializers.SerializerMethodField()
+    is_online = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Contact
+        fields = ['id', 'name', 'phone_number', 'contact_user', 'avatar', 'last_seen', 'is_online']
+
+
+    def validate_name(self, value):
+        value = value.strip()
+
+        if value =='':
+            raise serializers.ValidationError('فیلد نام خالی است.')
+
+        if len(value) > 50 :
+            raise serializers.ValidationError('فیلد نام حد اکثر باید ۵۰ کاراکتر باشد')
+
+        return value
+
+    def validate_phone_number(self, value):
+        value = value.strip()
+
+
+        if len(value) !=11 :
+            raise serializers.ValidationError('شماره وارد شده صحیح نمیباشد')
+
+        if not re.match(r"^\d+$", value):
+            raise serializers.ValidationError("شماره تلفن باید فقط شامل ارقام باشد.")
+
+        if not value.startswith('09'):
+            raise serializers.ValidationError("شماره تلفن معتبر نمیباشد.شماره باید با (9) اغاز شود")
+
+        try:
+            contact_user = User.objects.get(phone_number=value)
+
+        except User.DoesNotExist:
+            raise UserNotFoundError(f' کاربری با شماره ی: {value} وجود ندارد')
+
+        self._contact_user_instance = contact_user
+        return value
+
+    def create(self, validate_data):
+        user = self.context.get('user')
+        try:
+            contact = Contact.objects.get(owner=user, contact_user=self._contact_user_instance)
+            contact.name = validate_data['name']
+            contact.save()
+
+        except Contact.DoesNotExist:
+            contact = Contact.objects.create(
+                owner=user,
+                contact_user=self._contact_user_instance,
+                name=validate_data.get('name')
+            )
+        return contact
+
+    def get_avatar(self, obj):
+        avatar = obj.contact_user.images.filter(is_main=True).first()
+        if avatar and avatar.image:
+            main_avatar = getattr(avatar, 'image', None)
+            return f'{settings.BASE_URL}{main_avatar.url}'
+        return f'{settings.BASE_URL}{settings.MEDIA_URL}/profile_images/avatar/default-avatar.jpg'
+
+    def get_last_seen(self, obj):
+        contact_user = obj.contact_user
+        user_profile = getattr(contact_user, 'userprofile', None)
+        if user_profile and user_profile.last_seen:
+            return user_profile.last_seen
+        return None
+
+    def get_is_online(self, obj):
+        contact_user = obj.contact_user
+        user_profile = getattr(contact_user, 'userprofile', None)
+        if user_profile and user_profile.is_online:
+            return user_profile.is_online
+        return None
+
 
 

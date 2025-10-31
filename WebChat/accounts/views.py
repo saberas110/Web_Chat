@@ -3,15 +3,11 @@ from django.utils import timezone
 from random import randint
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import ensure_csrf_cookie
-from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.permissions import  IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import status
-from rest_framework_simplejwt.authentication import JWTAuthentication
-from rest_framework_simplejwt.tokens import RefreshToken, AccessToken
-from rest_framework_simplejwt.views import TokenObtainPairView
-
-from chat.models import UserProfile
+from rest_framework_simplejwt.tokens import RefreshToken
 from .models import OTP, User
 from .serializers import PhoneSerializer, OtpSerializer, UserSerializer
 
@@ -42,46 +38,26 @@ class RegisterView(APIView):
         if not srz_data.is_valid():
             return Response(srz_data.errors, status.HTTP_400_BAD_REQUEST)
         phone = srz_data.validated_data['otp_code']
-        print('phone from post register view', phone)
         user, create = User.objects.get_or_create(phone_number=phone)
-
+        refresh = RefreshToken.for_user(user)
+        access = refresh.access_token
         response = Response({'message': 'ثبت نام موفقیت امیز بود'}, status.HTTP_201_CREATED)
-        if user:
-            refresh = RefreshToken.for_user(user)
-            access = refresh.access_token
-            response.set_cookie(
-                key= 'access',
-                value= str(access),
-                httponly= True,
-                secure= False,
-                samesite= 'lax',
-            )
-            response.set_cookie(
-                key= 'refresh',
-                value= str(refresh),
-                httponly= True,
-                secure= 'lax',
-                samesite='lax',
-            )
-        if create:
-            user = create
-            refresh = RefreshToken.for_user(user)
-            access = refresh.access_token
-            response.set_cookie(
-                key='access',
-                value=str(access),
-                httponly=True,
-                secure=False,
-                samesite='lax',
-            )
-            response.set_cookie(
-                key='refresh',
-                value=str(refresh),
-                httponly=True,
-                secure='lax',
-                samesite='lax',
-            )
 
+        response.set_cookie(
+            key= 'access',
+            value= str(access),
+            httponly= True,
+            secure= False,
+            samesite= 'lax',
+        )
+        response.set_cookie(
+            key= 'refresh',
+            value= str(refresh),
+            httponly= True,
+            secure= False,
+            samesite='lax',
+        )
+        print( 'response', response.cookies)
         return response
 
 

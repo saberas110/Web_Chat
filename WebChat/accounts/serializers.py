@@ -22,7 +22,7 @@ class PhoneSerializer(serializers.Serializer):
 
         if not value.startswith('9'):
             raise serializers.ValidationError("شماره تلفن معتبر نمیباشد.شماره باید با (9) اغاز شود")
-        print('value from phoneseriala', value)
+
         return f'0{value}'
 
 class OtpSerializer(serializers.Serializer):

@@ -59,7 +59,7 @@ class Contact(models.Model):
     name = models.CharField(max_length=50, blank=True, null=True)
 
     def __str__(self):
-        return self.contact_user.phone_number
+        return f'{self.owner.phone_number}----> contacts:  {self.contact_user.phone_number}'
 
 
 

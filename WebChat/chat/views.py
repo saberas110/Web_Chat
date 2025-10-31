@@ -11,7 +11,7 @@ from rest_framework.views import APIView
 from channels.layers import get_channel_layer
 from accounts.models import User
 from chat.models import Conversation, Contact, Message
-from chat.serializers import ConversationSerializer, ContactsSerializer
+from chat.serializers import ConversationSerializer, ContactsSerializer, AddContactSerializer
 
 
 class ConversationListView(APIView):
@@ -50,6 +50,18 @@ class ContactsView(APIView):
         srz_data = ContactsSerializer(contacts, many=True, context={'request':request})
         return Response(srz_data.data, status.HTTP_200_OK)
 
+
+class AddContactView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        user = request.user
+        srz_input = AddContactSerializer(data=request.data, context={'user': user})
+        if srz_input.is_valid():
+            contact = srz_input.save()
+            srz_data = AddContactSerializer(contact)
+            return Response(srz_data.data, status.HTTP_201_CREATED)
+        return Response(srz_input.errors, status.HTTP_400_BAD_REQUEST)
 
 
 
